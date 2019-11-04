@@ -65,6 +65,27 @@ the path has processed since last time.
 
 2. There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points you have used so you can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. You would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
 
+## Reflections
+
+ Since waypoint vectors store the center points of the road at intervals of several tens of meters, driving simply along the waypoints will cause big jerk. Therefore, by using spline curves, I generate complex trajectories including lane changes. This makes it possible to run smoothly without sudden turns, braking, or acceleration. This program consists of the following parts.
+
+1. Get the next way point (line 97-122)
+2. Change the driving lane (line 124-198)
+3. Create smooth trajectory using spline curve (line 200-247)
+4. Generate constant speed points on the trajectory (line 249-284)
+
+Part1, Part3 and Part4 use the program explained in Project Q & A.
+The Part2 I created is an algorithm to select driving lanes. The algorithm flow is described below.
+
+1. If there is a car within 30m ahead of the driving lane, try changing lanes.
+2. First, in the left lane, if there is no car within 20m ahead and behind your car, move to the left lane.
+3. If there is a car in the left lane, then move to the right lane 
+   if there is no car in the right lane within 20m ahead and behind your vehicle.
+4. If you cannot change lanes, keep driving on the current lane at the same speed as the vehicle ahead.
+5. When the distance to the vehicle ahead is within 20m, drive on the current lane at 90% speed of the vehicle ahead.
+
+In this task, the other vehicles are driving at a constant speed without changing lanes, so I used the simple algorithm without state transition machine(STM). In the case of a complicated model such as a sudden change in the vehicle speed, a driving plan using STM and cost functions is required.
+
 ## Tips
 
 A really helpful resource for doing this project and creating smooth trajectories was using http://kluge.in-chemnitz.de/opensource/spline/, the spline function is in a single hearder file is really easy to use.
